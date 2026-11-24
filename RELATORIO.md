@@ -178,6 +178,58 @@ O build #2 terminou em SUCCESS nas tres etapas.
 ## E07 - Jenkins FAILURE e recuperacao (2 valores)
 Build FAILURE, etapa que falhou e excerto relevante do log; build SUCCESS apos correcao:
 
+Comandos:
+```
+# tests/test_app.py (test_health): assert response.json()["status"] == "offline"   (alteracao temporaria)
+git add tests/test_app.py
+git commit -m "test: falha controlada - esperar status offline"
+git push
+# Jenkins: Build Now -> #3
+# tests/test_app.py: reposto assert response.json()["status"] == "ok"
+git add tests/test_app.py
+git commit -m "test: repor assercao status ok"
+git push
+# Jenkins: Build Now -> #4
+```
+
+**Build FAILURE controlado: #3** - http://localhost:8080/job/tp-integrador-devops/3/ (commit `c31b19a`)
+- Etapa que falhou: **Tests** (Checkout passou; Docker Build nao avancou)
+- Excerto do log:
+  ```
+  FAILED tests/test_app.py::test_health - AssertionError: assert 'ok' == 'offline'
+    - offline
+    + ok
+  1 failed, 1 passed, 1 warning in 0.51s
+  [Pipeline] { (Docker Build)
+  Stage "Docker Build" skipped due to earlier failure(s)
+  ERROR: script returned exit code 1
+  Finished: FAILURE
+  ```
+
+**Build SUCCESS apos correcao: #4** - http://localhost:8080/job/tp-integrador-devops/4/ (commit `0156215`)
+- Checkout, Tests e Docker Build concluidos; `Successfully tagged natixis-support:ci-4`
+- `docker image inspect natixis-support:ci-4 --format {{.Id}}` ->
+  `sha256:c768d275923e90d1f518ca2f831d68b31d3a233e3e99a33e65bdad231284bb7f`
+- `Finished: SUCCESS`
+
+Historico Git (commits de demonstracao mantidos):
+```
+0156215 (HEAD -> main, origin/main) test: repor assercao status ok
+c31b19a test: falha controlada - esperar status offline
+9dd6b4f docs: evidencias E06 (build Jenkins SUCCESS)
+29ff9d3 docs: relatorio com evidencias E01-E05
+901ff41 ci: pipeline Jenkins com testes e build da imagem
+d132023 (tag: v1.0.0, fix/health-info) fix: acrescentar identificacao no health
+fef0757 feat: ambiente integrador funcional
+```
+
+Conclusao: a assercao alterada falhou porque a API devolve status="ok"; o pytest terminou com codigo 1, a
+etapa Tests ficou em FAILURE e o Jenkins nao executou Docker Build, impedindo a criacao de uma imagem a partir
+de codigo nao validado. Reposta a assercao, o build #4 voltou a SUCCESS. O Id da imagem e igual ao do build #2
+porque app.py e requirements.txt (os unicos ficheiros copiados para a imagem) nao mudaram, pelo que o Docker
+reutilizou todas as camadas em cache e apenas acrescentou a tag ci-4. Os builds #1 a #4 e os commits de
+demonstracao foram mantidos.
+
 ## Verificacao final
-[ ] Dockerfile [ ] compose.yaml [ ] app.py [ ] tests/ [ ] Jenkinsfile
-[ ] Historico Git [ ] Tag v1.0.0 [ ] Evidencias E01-E07
+[x] Dockerfile [x] compose.yaml [x] app.py [x] tests/ [x] Jenkinsfile
+[x] Historico Git [x] Tag v1.0.0 [x] Evidencias E01-E07
