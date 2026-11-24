@@ -1,7 +1,7 @@
 # Relatorio de evidencias - Trabalho Pratico Integrador 01-06
 
 Nome: Joao Costa   Data: 24/11/2026
-URL do repositorio Git: https://github.com/jdiogocosta92
+URL do repositorio Git: https://github.com/jdiogocosta92/tp-integrador-devops
 
 ## E01 - Ambiente (1 valor)
 Comandos e versoes observadas:
@@ -107,6 +107,46 @@ Conclusao: servico reposto e contador preservado, pois o volume app-data nao foi
 
 ## E05 - Git (3 valores)
 Branch, hashes de commits, merge e tag v1.0.0:
+
+Comandos:
+```
+git init
+git check-ignore -v .venv/x .env __pycache__/x.pyc .pytest_cache/x
+git add .
+git commit -m "feat: ambiente integrador funcional"
+git branch -M main
+git switch -c fix/health-info
+# app.py: campo "team": "support" em /health; tests/test_app.py: assert response.json()["team"] == "support"
+git add app.py tests/test_app.py
+git commit -m "fix: acrescentar identificacao no health"
+git switch main
+git merge fix/health-info
+git tag -a v1.0.0 -m "Release integrador 1.0.0"
+git log --oneline --graph --decorate -6
+git remote add origin https://github.com/jdiogocosta92/tp-integrador-devops.git
+git push -u origin main
+git push origin v1.0.0
+```
+
+- .gitignore: `git check-ignore -v` confirmou `.venv/` (linha 1), `__pycache__/` (linha 2),
+  `.pytest_cache/` (linha 3) e `.env` (linha 5) como ignorados
+- Branch principal: `main` (criada como master por `git init` e renomeada com `git branch -M main`)
+- Branch de correcao: `fix/health-info`
+- Commit 1: `fef0757` feat: ambiente integrador funcional
+- Commit 2: `d132023` fix: acrescentar identificacao no health
+- Testes apos a alteracao (container python:3.13-slim): `2 passed, 1 warning in 0.60s`
+- Merge: `Updating fef0757..d132023` / `Fast-forward` (app.py, tests/test_app.py)
+- git log:
+  ```
+  * d132023 (HEAD -> main, tag: v1.0.0, fix/health-info) fix: acrescentar identificacao no health
+  * fef0757 feat: ambiente integrador funcional
+  ```
+- Publicacao: `* [new branch] main -> main` e `* [new tag] v1.0.0 -> v1.0.0` em
+  https://github.com/jdiogocosta92/tp-integrador-devops (remoto sem credenciais no URL)
+
+Conclusao: a correcao foi desenvolvida na branch fix/health-info, validada pelos testes e integrada na main
+por fast-forward; a release v1.0.0 (tag anotada) aponta para d132023 e esta publicada no remoto,
+garantindo rastreabilidade entre codigo, teste e versao.
 
 ## E06 - Jenkins SUCCESS (4 valores)
 URL/numero do build, etapas e identificador da imagem construida:
