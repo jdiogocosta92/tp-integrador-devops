@@ -1,13 +1,13 @@
 # Relatorio de evidencias - Trabalho Pratico Integrador 01-06
 
 Nome: Joao Costa   Data: 24/11/2026
-URL do repositorio Git: <a preencher no Exercicio 04>
+URL do repositorio Git: https://github.com/jdiogocosta92
 
 ## E01 - Ambiente (1 valor)
 Comandos e versoes observadas:
-- `docker --version` -> <colar linha>
-- `docker compose version` -> <colar linha>
-- `git --version` -> <colar linha>
+- `docker --version` -> `Docker version 29.9.2, build a82e528`
+- `docker compose version` -> `Docker Compose version v5.6.1`
+- `git --version` -> `git version 2.56.1.windows.1`
 - `docker info` -> `Server Version: 29.9.2` | `OSType: linux` | `Containers: 3`
 
 Componentes do projeto:
