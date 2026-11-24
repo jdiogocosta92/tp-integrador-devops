@@ -151,6 +151,30 @@ garantindo rastreabilidade entre codigo, teste e versao.
 ## E06 - Jenkins SUCCESS (4 valores)
 URL/numero do build, etapas e identificador da imagem construida:
 
+- Job: `tp-integrador-devops` (Pipeline script from SCM, Git
+  https://github.com/jdiogocosta92/tp-integrador-devops.git, branch `*/main`, Script Path `Jenkinsfile`)
+- Build SUCCESS: **#2** - http://localhost:8080/job/tp-integrador-devops/2/
+- Etapas: Checkout -> Tests -> Docker Build, todas concluidas com sucesso (`Finished: SUCCESS`)
+- Tests: `.venv/bin/python -m pytest -q` -> `2 passed`
+- Docker Build:
+  ```
+  Successfully tagged natixis-support:ci-2
+  + docker image inspect natixis-support:ci-2 --format {{.Id}}
+  sha256:c768d275923e90d1f518ca2f831d68b31d3a233e3e99a33e65bdad231284bb7f
+  ```
+- Imagem construida: `natixis-support:ci-2`, Id `sha256:c768d275923e90d1f518ca2f831d68b31d3a233e3e99a33e65bdad231284bb7f`
+
+Nota (build #1 - FAILURE de ambiente, nao relacionada com o codigo): Checkout e Tests passaram (`2 passed`),
+mas Docker Build falhou com `docker: not found` (`script returned exit code 127`). Diagnostico: o agente
+ci-python-docker tinha `DOCKER_HOST=tcp://docker-engine:2375` mas nao tinha a CLI `docker`. Correcao no
+Dockerfile.agent do laboratorio (`COPY --from=docker:28-cli /usr/local/bin/docker /usr/local/bin/docker`) e
+`docker compose up -d --build ci-agent`; validado com `docker exec jenkins-ci-agent docker version`
+(Client 28.5.2 / Server 28.5.2).
+
+Conclusao: a pipeline obtem o codigo do Git, executa os testes automatizados num ambiente virtual isolado e
+constroi uma imagem com tag unica por execucao (ci-${BUILD_NUMBER}), confirmada por docker image inspect.
+O build #2 terminou em SUCCESS nas tres etapas.
+
 ## E07 - Jenkins FAILURE e recuperacao (2 valores)
 Build FAILURE, etapa que falhou e excerto relevante do log; build SUCCESS apos correcao:
 
